@@ -12,10 +12,13 @@ Handwritten Math Expressions Recognition
   - Digits: 0-9
   - Characters: x, y, a, b, c, d, m, n, p, delta, f, h, k, sin, cos, tan, A, pi
   - Operators: +, -, \*, /, =, sqrt, ^, \_, bar, frac, cdots, (, )
+
+  	[Source Code](/Model/keras_final32.py)
   - Architecture: ResNet-50
 
 #### Segmentation
   - opencv.findContours()
+
   	[Source Code](/Segmentation/cvFindContour.py)
   - Small window filters with various sizes to scan after opencv.findContours()
   - A Region Proposal-like Network for incompletely segmented parts
