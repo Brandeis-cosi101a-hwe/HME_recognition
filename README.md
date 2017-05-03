@@ -13,7 +13,7 @@ Handwritten Math Expressions Recognition
   - Characters: x, y, a, b, c, d, m, n, p, delta, f, h, k, sin, cos, tan, A, pi
   - Operators: +, -, \*, /, =, sqrt, ^, \_, bar, frac, cdots, (, )
 
-  	[Source Code](/Model/keras_final32.py)
+  	[Source Code](/Model/keras_final32.py)g
   - Architecture: ResNet-50
 
 #### Segmentation
