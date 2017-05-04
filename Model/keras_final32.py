@@ -8,9 +8,9 @@ from keras import backend as K
 import numpy as np
 from sklearn import preprocessing
 
-alignmnist = np.load('final32.npz')
-x = alignmnist['x']
-y = alignmnist['y']
+data = np.load('nist_annotated.npz')
+x = data['x']
+y = data['y']
 
 le = preprocessing.LabelEncoder()
 le.fit(y)
