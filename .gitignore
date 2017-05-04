@@ -90,3 +90,6 @@ ENV/
 
 #Mac OS X
 .DS_Store
+
+#pics
+DataPreparation/annotated/*
