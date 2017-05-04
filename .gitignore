@@ -93,3 +93,4 @@ ENV/
 
 #pics
 DataPreparation/annotated/*
+Segmentation/annotated/*
