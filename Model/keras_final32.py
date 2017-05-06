@@ -7,8 +7,10 @@ from keras.layers.normalization import BatchNormalization
 from keras import backend as K
 import numpy as np
 from sklearn import preprocessing
+import h5py
 
-data = np.load('nist_annotated.npz')
+#data = np.load('nist_annotated.npz')
+data = np.load('train32_raw.npz')
 x = data['x']
 y = data['y']
 
