@@ -20,7 +20,6 @@ categories = ['c', 's', 'y', 'pi', '3', '0', '6', '1', 'mul', 'p', 'cos', '2',
               'n', 'A', '-', 'pm', 'a', '+', '(', 'sqrt', 'sin', 'x', 'div', 'dots', 'tan',
               'bar', 'b', 'o', 't', 'h', 'delta', 'f', 'm', ')', 'd', '4', 'i', 'k', '=', 'frac']
 
-
 def padding_square(img):
     """
     :type img: ndarray
@@ -30,16 +29,15 @@ def padding_square(img):
     img = exposure.adjust_gamma(img, 0.15)
     (vertical_pixel, horizontal_pixel) = img.shape
     if vertical_pixel > horizontal_pixel:
-        vertical_padding = int(round(vertical_pixel * 0.15))
-        horizontal_padding = int(round((vertical_pixel * 1.3 - horizontal_pixel) / 2))
-        padding = ((vertical_padding, vertical_padding), (horizontal_padding, horizontal_padding))
+        vertical_padding = int(round(vertical_pixel * 0.3))
+        horizontal_padding = int(round(vertical_pixel * 1.3 - horizontal_pixel))
+        padding = ((0, vertical_padding), (0, horizontal_padding))
     else:
-        horizontal_padding = int(round(horizontal_pixel * 0.15))
-        vertical_padding = int(round((horizontal_pixel * 1.3 - vertical_pixel) / 2))
-        padding = ((vertical_padding, vertical_padding), (horizontal_padding, horizontal_padding))
+        horizontal_padding = int(round(horizontal_pixel * 3))
+        vertical_padding = int(round(horizontal_pixel * 1.3 - vertical_pixel))
+        padding = ((0, vertical_padding), (0, horizontal_padding))
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
     return img
-
 
 def padding_32(img):
     """
@@ -87,6 +85,11 @@ for pic in pics:
 
     # padding to 32*32
     img = padding_32(img)
+
+    # test
+    #img = Image.fromarray(img, 'L')
+    #img.save('my.png')
+    #img.show()
 
     # flatten img to fill np array
     flatten = img.flatten()
