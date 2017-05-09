@@ -94,3 +94,4 @@ ENV/
 #pics
 DataPreparation/annotated/*
 Segmentation/annotated/*
+BONUS/DataGen/test/*
