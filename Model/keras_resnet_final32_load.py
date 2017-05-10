@@ -9,7 +9,7 @@ import numpy as np
 from sklearn import preprocessing
 import keras_buildresnet as resnet
 
-alignmnist = np.load('final32.npz')
+alignmnist = np.load('train32_raw.npz')
 x = alignmnist['x']
 y = alignmnist['y']
 
@@ -39,7 +39,7 @@ print(x.shape[0], 'train samples')
 # convert class vectors to binary class matrices
 y = keras.utils.to_categorical(t_y, num_classes)
 
-model = resnet.ResnetBuilder.build_resnet_18((1, img_rows, img_cols), num_classes)
+model = resnet.ResnetBuilder.build_resnet_34((1, img_rows, img_cols), num_classes)
 
 model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
@@ -47,15 +47,16 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 
 # serialize weights to HDF5
-model.load_weights("model_final32_f.h5")
+model.load_weights("model_final32_res34.h5")
 
-train32 = np.load('train32_raw.npz')
-x = train32['x']
-y = train32['y']
-x = x.reshape(y.shape[0], 32, 32, 1)
-
-i = 0
-for img in x:
-  label = y[i]
-  print(le.inverse_transform(np.argmax(model.predict(img))), label)
-  i+=1
+model.evaluate(x, t_y)
+# train32 = np.load('train32_raw.npz')
+# x = train32['x']
+# y = train32['y']
+# x = x.reshape(y.shape[0], 32, 32, 1)
+#
+# i = 0
+# for img in x:
+#   label = y[i]
+#   print(le.inverse_transform(np.argmax(model.predict(img))), label)
+#   i+=1

@@ -6,7 +6,7 @@ import ntpath
 
 #custom classes imports
 import kerasmodel as km
-import segmentor as seg
+import segmentor2 as seg
 
 #Separate ImgPred and SymPred to files
 from SymPred import SymPred
