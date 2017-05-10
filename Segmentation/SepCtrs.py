@@ -42,11 +42,13 @@ def padding_square(img):
     img = exposure.adjust_gamma(img, 0.15)
     (vertical_pixel, horizontal_pixel) = img.shape
     if vertical_pixel > horizontal_pixel:
-        horizontal_padding = int(round(vertical_pixel  - horizontal_pixel))
-        padding = ((0, 0), (0, horizontal_padding))
+        horizontal_padding = int(round(vertical_pixel - horizontal_pixel))
+        horizontal_padding = int(horizontal_padding/1)
+        padding = ((0, 0), (horizontal_padding, horizontal_padding))
     else:
         vertical_padding = int(round(horizontal_pixel - vertical_pixel))
-        padding = ((0, vertical_padding), (0, 0))
+        vertical_padding = int(vertical_padding/2)
+        padding = ((vertical_padding, vertical_padding), (0, 0))
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
     return img
 
@@ -122,8 +124,6 @@ def img_combine(img1, img2, r1, r2, base_rect):
     base_h = base_rect[1]
     r1 = [r1[0]-base_w, r1[1]-base_h, r1[2], r1[3]]
     r2 = [r2[0]-base_w, r2[1]-base_h, r2[2], r2[3]]
-    print(((r1[1], h-r1[3]-r1[1]),(r1[0],w-r1[2]-r1[0])))
-    print(((r2[1], h-r2[3]-r2[1]),(r2[0],w-r2[2]-r2[0])))
     img1 = skimage.util.pad(img1, ((r1[1], h-r1[3]-r1[1]),(r1[0],w-r1[2]-r1[0])), 'constant', constant_values=0)
     img2 = skimage.util.pad(img2, ((r2[1], h-r2[3]-r2[1]),(r2[0],w-r2[2]-r2[0])), 'constant', constant_values=0)
     new_im = ((img1+img2)>0)*1
