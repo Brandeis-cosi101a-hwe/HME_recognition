@@ -74,8 +74,9 @@ for rect in rects:
     blobs_labels = measure.label(im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
     im_temp = (blobs_labels == targetNum(blobs_labels)) * 255
     im_temp = padding_square(im_temp)
+    im_temp = im_temp/255
     im_temp = cv2.resize(im_temp, (28, 28), interpolation=cv2.INTER_AREA)
-    #im_temp = padding_32(im_temp)
+    im_temp = padding_32(im_temp)
     cv2.imwrite(getName(rect), im_temp)
     # draw rectangle
     cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
