@@ -42,13 +42,11 @@ def padding_square(img):
     img = exposure.adjust_gamma(img, 0.15)
     (vertical_pixel, horizontal_pixel) = img.shape
     if vertical_pixel > horizontal_pixel:
-        vertical_padding = int(round(vertical_pixel * 0.3))
-        horizontal_padding = int(round(vertical_pixel * 1.3 - horizontal_pixel))
-        padding = ((0, vertical_padding), (0, horizontal_padding))
+        horizontal_padding = int(round(vertical_pixel  - horizontal_pixel))
+        padding = ((0, 0), (0, horizontal_padding))
     else:
-        horizontal_padding = int(round(horizontal_pixel * 0.3))
-        vertical_padding = int(round(horizontal_pixel * 1.3 - vertical_pixel))
-        padding = ((0, vertical_padding), (0, horizontal_padding))
+        vertical_padding = int(round(horizontal_pixel - vertical_pixel))
+        padding = ((0, vertical_padding), (0, 0))
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
     return img
 
@@ -77,7 +75,7 @@ for rect in rects:
     im_temp = (blobs_labels == targetNum(blobs_labels)) * 255
     im_temp = padding_square(im_temp)
     im_temp = cv2.resize(im_temp, (28, 28), interpolation=cv2.INTER_AREA)
-    im_temp = padding_32(im_temp)
+    #im_temp = padding_32(im_temp)
     cv2.imwrite(getName(rect), im_temp)
     # draw rectangle
     cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
