@@ -68,19 +68,83 @@ ret, im_th = cv2.threshold(im, 127, 255, cv2.THRESH_BINARY_INV)
 
 im2, ctrs, hier = cv2.findContours(im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 rects = [cv2.boundingRect(ctr) for ctr in ctrs]
+bars_rect = []
+
+def isBar(img,rect):
+    treshold1 = 0.5
+    treshold2 = 2
+    used = 0
+    total = 0
+    for i in img:
+        total += 1
+        if i==1:
+            used += 1
+    usage = used/total
+    ratio = rect[2] / rect[3]
+    return usage>treshold1 or ratio>treshold2
+
+def overlap(bars_rect, i , j):
+    r1 = bars_rect[i]
+    r2 = bars_rect[j]
+    if (r1[0]+r1[2])<r2[0] or r1[0]>(r2[0]+r2[2]):  # don't even touch horizontally
+        return False
+    temp_array = [r1[0], r1[0] + r1[2],
+                  r2[0], r2[0] + r2[2]]
+    temp_array.sort()
+    vert_overlap_rate = (temp_array[2] - temp_array[1]) / (temp_array[3] - temp_array[0])
+    return vert_overlap_rate>0.6
+
+def cropImg(im_temp2, new_rect):
+    rect = new_rect
+    im_temp2 = im_temp2 * 255
+    im_temp2 = padding_square(im_temp2)
+    im_temp2 = im_temp2 / 255
+    im_temp2 = cv2.resize(im_temp2, (28, 28), interpolation=cv2.INTER_AREA)
+    im_temp2 = padding_32(im_temp2)
+    cv2.imwrite(getName(rect), im_temp2)
+    cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
+
 for rect in rects:
     # create new img file
     im_temp = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
     blobs_labels = measure.label(im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
-    im_temp = (blobs_labels == targetNum(blobs_labels)) * 255
-    im_temp = padding_square(im_temp)
-    im_temp = im_temp/255
-    im_temp = cv2.resize(im_temp, (28, 28), interpolation=cv2.INTER_AREA)
-    im_temp = padding_32(im_temp)
-    cv2.imwrite(getName(rect), im_temp)
-    # draw rectangle
+    im_temp = (blobs_labels == targetNum(blobs_labels))*1
+    if isBar(im_temp.flatten(), rect):
+        bars_rect.append(rect)
+    else:
+        cropImg(im_temp, rect)
+
+change_flag = True
+while (change_flag):
+    change_flag = False
+    i = -1
+    j = -1
+    for i in range(-1, len(bars_rect)-1):
+        i += 1
+        j = i
+        if (i >= len(bars_rect)):
+            break
+        for j in range(i, len(bars_rect)-1):
+            j += 1
+            if (j>=len(bars_rect)):
+                break
+            if overlap(bars_rect, i, j):
+                change_flag = True
+                new_rect = (min(bars_rect[i][0], bars_rect[j][0]),
+                            min(bars_rect[i][1], bars_rect[j][1]),
+                            max(bars_rect[i][0]+bars_rect[i][2], bars_rect[j][0]+bars_rect[j][2]) - min(bars_rect[i][0], bars_rect[j][0]),
+                            max(bars_rect[i][1]+bars_rect[i][3], bars_rect[j][1]+bars_rect[j][3]) - min(bars_rect[i][1], bars_rect[j][1]))
+                del bars_rect[j]
+                del bars_rect[i]
+                bars_rect.append(new_rect)
+
+for i in range(0, len(bars_rect)):
+    rect = bars_rect[i]
+    im_temp2 = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
+    blobs_labels = measure.label(im_temp2, connectivity=5, neighbors=8, background=0, return_num=False)
+    im_temp2 = (blobs_labels%255 != 0) * 1
+    cropImg(im_temp2, rect)
     cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
 
 im = 255 - im
-
 cv2.imwrite('out.png', im)
