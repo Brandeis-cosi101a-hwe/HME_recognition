@@ -1,12 +1,31 @@
 #add your imports here
+from __future__ import division
+from __future__ import print_function
+
+import cv2
+import skimage
+from skimage import measure
+from skimage.exposure import exposure
+import skimage.transform
+
+#custom classes imports
+import kerasmodel as km
+
+#original imports
 from sys import argv
 from glob import glob
 from scipy import misc
 import numpy as np
 import random
+
+
+
 """
 add whatever you think it's essential here
 """
+#load keras model
+model = km.KerasModel.load()
+
 class SymPred():
 	def __init__(self,prediction, x1, y1, x2, y2):
 		"""
@@ -34,7 +53,7 @@ class ImgPred():
 	def __init__(self,image_name,sym_pred_list,latex = 'LATEX_REPR'):
 		"""
 		sym_pred_list is list of SymPred
-		latex is the latex representation of the equation 
+		latex is the latex representation of the equation
 		"""
 		self.image_name = image_name
 		self.latex = latex
@@ -53,6 +72,8 @@ def predict(image_path):
 	#Don't forget to store your prediction into ImgPred
 	img_prediction = ImgPred(...)
 	"""
+	img = cv2.imread(image_path, 0)
+
 	return img_prediction
 if __name__ == '__main__':
 	image_folder_path = argv[1]
