@@ -69,10 +69,10 @@ ret, im_th = cv2.threshold(im, 127, 255, cv2.THRESH_BINARY_INV)
 im2, ctrs, hier = cv2.findContours(im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 rects = [cv2.boundingRect(ctr) for ctr in ctrs]
 bars_rect = []
-
+bars_im = []
 def isBar(img,rect):
     treshold1 = 0.5
-    treshold2 = 2
+    treshold2 = 3
     used = 0
     total = 0
     for i in img:
@@ -102,7 +102,6 @@ def cropImg(im_temp2, new_rect):
     im_temp2 = cv2.resize(im_temp2, (28, 28), interpolation=cv2.INTER_AREA)
     im_temp2 = padding_32(im_temp2)
     cv2.imwrite(getName(rect), im_temp2)
-    cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
 
 for rect in rects:
     # create new img file
@@ -111,8 +110,24 @@ for rect in rects:
     im_temp = (blobs_labels == targetNum(blobs_labels))*1
     if isBar(im_temp.flatten(), rect):
         bars_rect.append(rect)
+        bars_im.append(im_temp)
     else:
         cropImg(im_temp, rect)
+        cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
+
+def img_combine(img1, img2, r1, r2, base_rect):
+    w = base_rect[2]
+    h = base_rect[3]
+    base_w = base_rect[0]
+    base_h = base_rect[1]
+    r1 = [r1[0]-base_w, r1[1]-base_h, r1[2], r1[3]]
+    r2 = [r2[0]-base_w, r2[1]-base_h, r2[2], r2[3]]
+    print(((r1[1], h-r1[3]-r1[1]),(r1[0],w-r1[2]-r1[0])))
+    print(((r2[1], h-r2[3]-r2[1]),(r2[0],w-r2[2]-r2[0])))
+    img1 = skimage.util.pad(img1, ((r1[1], h-r1[3]-r1[1]),(r1[0],w-r1[2]-r1[0])), 'constant', constant_values=0)
+    img2 = skimage.util.pad(img2, ((r2[1], h-r2[3]-r2[1]),(r2[0],w-r2[2]-r2[0])), 'constant', constant_values=0)
+    new_im = ((img1+img2)>0)*1
+    return new_im
 
 change_flag = True
 while (change_flag):
@@ -134,16 +149,17 @@ while (change_flag):
                             min(bars_rect[i][1], bars_rect[j][1]),
                             max(bars_rect[i][0]+bars_rect[i][2], bars_rect[j][0]+bars_rect[j][2]) - min(bars_rect[i][0], bars_rect[j][0]),
                             max(bars_rect[i][1]+bars_rect[i][3], bars_rect[j][1]+bars_rect[j][3]) - min(bars_rect[i][1], bars_rect[j][1]))
+                new_im = img_combine(bars_im[i], bars_im[j], bars_rect[i], bars_rect[j], new_rect)
                 del bars_rect[j]
                 del bars_rect[i]
+                del bars_im[j]
+                del bars_im[i]
                 bars_rect.append(new_rect)
+                bars_im.append(new_im)
 
 for i in range(0, len(bars_rect)):
     rect = bars_rect[i]
-    im_temp2 = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-    blobs_labels = measure.label(im_temp2, connectivity=5, neighbors=8, background=0, return_num=False)
-    im_temp2 = (blobs_labels%255 != 0) * 1
-    cropImg(im_temp2, rect)
+    cropImg(bars_im[i], rect)
     cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
 
 im = 255 - im
