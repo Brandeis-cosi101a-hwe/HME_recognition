@@ -43,10 +43,12 @@ def padding_square(img):
     (vertical_pixel, horizontal_pixel) = img.shape
     if vertical_pixel > horizontal_pixel:
         horizontal_padding = int(round(vertical_pixel - horizontal_pixel))
-        padding = ((0, 0), (0, horizontal_padding))
+        horizontal_padding = int(horizontal_padding/1)
+        padding = ((0, 0), (horizontal_padding, horizontal_padding))
     else:
         vertical_padding = int(round(horizontal_pixel - vertical_pixel))
-        padding = ((0, vertical_padding), (0, 0))
+        vertical_padding = int(vertical_padding/2)
+        padding = ((vertical_padding, vertical_padding), (0, 0))
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
     return img
 
@@ -87,16 +89,15 @@ def overlap(bars_rect, i, j):
 
 def cropImg(im_temp2, new_rect):
     rect = new_rect
-    cv2.imwrite("./output/" + getName(rect), im_temp2)
     im_temp2 = im_temp2 * 255
     im_temp2 = padding_square(im_temp2)
     im_temp2 = im_temp2 / 255
     im_temp2 = cv2.resize(im_temp2, (28, 28), interpolation=cv2.INTER_AREA)
     im_temp2 = padding_32(im_temp2)
-
+    im_temp2 = im_temp2 * 255
+    cv2.imwrite("./output/" + getName(rect), im_temp2)
     cropped_imgs.append(im_temp2)
-    cropped_rects.append(
-        [rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]])
+    cropped_rects.append([rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]])
 
 def img_combine(img1, img2, r1, r2, base_rect):
     w = base_rect[2]
@@ -122,8 +123,7 @@ def process(image_path):
     # Threshold the image
     ret, im_th = cv2.threshold(im, 127, 255, cv2.THRESH_BINARY_INV)
 
-    im2, ctrs, hier = cv2.findContours(
-        im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    im2, ctrs, hier = cv2.findContours(im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     rects = [cv2.boundingRect(ctr) for ctr in ctrs]
     bars_rect = []
     bars_im = []
@@ -131,8 +131,7 @@ def process(image_path):
     for rect in rects:
         # create new img file
         im_temp = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        blobs_labels = measure.label(
-            im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
+        blobs_labels = measure.label(im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
         im_temp = (blobs_labels == targetNum(blobs_labels)) * 1
         if isBar(im_temp.flatten(), rect):
             bars_rect.append(rect)
