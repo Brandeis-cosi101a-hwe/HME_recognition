@@ -9,8 +9,6 @@ from skimage.exposure import exposure
 import skimage.transform
 
 
-im_gray = cv2.imread("test6.png", 0)
-
 def getName(rect):
     return str(rect[0])+'_'+str(rect[0]+rect[2])+'_'+str(rect[1])+"_"+str(rect[1] + rect[3])+'.png'
 
@@ -62,16 +60,6 @@ def padding_32(img):
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
     return img
 
-# Convert to grayscale and apply Gaussian filtering
-im_gray = cv2.GaussianBlur(im_gray, (5, 5), 0)
-im = 255 - im_gray
-# Threshold the image
-ret, im_th = cv2.threshold(im, 127, 255, cv2.THRESH_BINARY_INV)
-
-im2, ctrs, hier = cv2.findContours(im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-rects = [cv2.boundingRect(ctr) for ctr in ctrs]
-bars_rect = []
-bars_im = []
 def isBar(img,rect):
     treshold1 = 0.5
     treshold2 = 3
@@ -105,17 +93,6 @@ def cropImg(im_temp2, new_rect):
     im_temp2 = padding_32(im_temp2)
     cv2.imwrite(getName(rect), im_temp2)
 
-for rect in rects:
-    # create new img file
-    im_temp = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-    blobs_labels = measure.label(im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
-    im_temp = (blobs_labels == targetNum(blobs_labels))*1
-    if isBar(im_temp.flatten(), rect):
-        bars_rect.append(rect)
-        bars_im.append(im_temp)
-    else:
-        cropImg(im_temp, rect)
-        cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
 
 def img_combine(img1, img2, r1, r2, base_rect):
     w = base_rect[2]
@@ -128,6 +105,33 @@ def img_combine(img1, img2, r1, r2, base_rect):
     img2 = skimage.util.pad(img2, ((r2[1], h-r2[3]-r2[1]),(r2[0],w-r2[2]-r2[0])), 'constant', constant_values=0)
     new_im = ((img1+img2)>0)*1
     return new_im
+
+
+im_gray = cv2.imread("test6.png", 0)
+
+# Convert to grayscale and apply Gaussian filtering
+im_gray = cv2.GaussianBlur(im_gray, (5, 5), 0)
+im = 255 - im_gray
+# Threshold the image
+ret, im_th = cv2.threshold(im, 127, 255, cv2.THRESH_BINARY_INV)
+
+im2, ctrs, hier = cv2.findContours(im_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+rects = [cv2.boundingRect(ctr) for ctr in ctrs]
+bars_rect = []
+bars_im = []
+
+for rect in rects:
+    # create new img file
+    im_temp = im2[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
+    blobs_labels = measure.label(im_temp, connectivity=5, neighbors=8, background=0, return_num=False)
+    im_temp = (blobs_labels == targetNum(blobs_labels))*1
+    if isBar(im_temp.flatten(), rect):
+        bars_rect.append(rect)
+        bars_im.append(im_temp)
+    else:
+        cropImg(im_temp, rect)
+        cv2.rectangle(im, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
+
 
 change_flag = True
 while (change_flag):
