@@ -8,6 +8,10 @@ import ntpath
 import kerasmodel as km
 import segmentor as seg
 
+#Separate ImgPred and SymPred to files
+from SymPred import SymPred
+from ImgPred import ImgPred
+
 #original imports
 from sys import argv
 from glob import glob
@@ -15,18 +19,11 @@ from scipy import misc
 import numpy as np
 import random
 
-
-
 """
 add whatever you think it's essential here
 """
-#load keras model
-model = km.KerasModel.load()
-
-
-
-
-
+#load keras model and label encoder
+model, le = km.KerasModel.load()
 
 def predict(image_path):
 	"""
@@ -38,9 +35,15 @@ def predict(image_path):
 	"""
 	sym_preds = []
 	print("Predicting "+ ntpath.basename(image_path))
-	imgs, rects = seg.Segmentor.process(image_path)
+	imgs, rects = seg.process(image_path)
 	for i in range(0, len(imgs)):
-		sym_preds.append(SymPred())
+		sym_pred = SymPred(le.inverse_transform(np.argmax(model.predict(imgs[i].reshape([-1,32,32,1])))),rects[i][0],rects[i][1],rects[i][2],rects[i][3])
+		sym_preds.append(sym_pred)
+		print(str(sym_pred))
+	img_pred = ImgPred(ntpath.basename(image_path).split('.')[0], sym_preds)
+	seg.cropped_imgs = []
+	seg.cropped_rects = []
+	return img_pred
 
 	return img_prediction
 if __name__ == '__main__':
