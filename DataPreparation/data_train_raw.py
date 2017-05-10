@@ -33,7 +33,7 @@ def padding_square(img):
         horizontal_padding = int(round(vertical_pixel * 1.3 - horizontal_pixel))
         padding = ((0, vertical_padding), (0, horizontal_padding))
     else:
-        horizontal_padding = int(round(horizontal_pixel * 3))
+        horizontal_padding = int(round(horizontal_pixel * 0.3))
         vertical_padding = int(round(horizontal_pixel * 1.3 - vertical_pixel))
         padding = ((0, vertical_padding), (0, horizontal_padding))
     img = skimage.util.pad(img, padding, 'constant', constant_values=0)
