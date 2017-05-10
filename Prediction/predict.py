@@ -1,15 +1,12 @@
 #add your imports here
 from __future__ import division
 from __future__ import print_function
-
-import cv2
-import skimage
-from skimage import measure
-from skimage.exposure import exposure
-import skimage.transform
+# own imports
+import ntpath
 
 #custom classes imports
 import kerasmodel as km
+import segmentor as seg
 
 #original imports
 from sys import argv
@@ -25,6 +22,7 @@ add whatever you think it's essential here
 """
 #load keras model
 model = km.KerasModel.load()
+
 
 class SymPred():
 	def __init__(self,prediction, x1, y1, x2, y2):
@@ -72,7 +70,11 @@ def predict(image_path):
 	#Don't forget to store your prediction into ImgPred
 	img_prediction = ImgPred(...)
 	"""
-	img = cv2.imread(image_path, 0)
+	sym_preds = []
+	print("Predicting "+ ntpath.basename(image_path))
+	imgs, rects = seg.Segmentor.process(image_path)
+	for i in range(0, len(imgs)):
+		sym_preds.append(SymPred())
 
 	return img_prediction
 if __name__ == '__main__':

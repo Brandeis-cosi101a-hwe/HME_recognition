@@ -66,3 +66,6 @@ class KerasModel(object):
 
         model.load_weights("model_final32_1.h5")
         return model
+
+    def predict(model):
+        
