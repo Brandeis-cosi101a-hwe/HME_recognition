@@ -105,6 +105,8 @@ def padding_32(img):
     return img
 
 i=0
+t=len(y)
+c=0
 if(len(sys.argv)>1):
     folder_name = sys.argv[1]
     all_pics = glob.glob("./"+folder_name+"/*.png")
@@ -116,8 +118,9 @@ if(len(sys.argv)>1):
         label = ntpath.basename(pic).split('_')[3]
         img = cv2.resize(img, (28, 28), interpolation=cv2.INTER_AREA)
         img = padding_32(img)
-        cv2.imwrite('./pre/'+ str(i)+'.png', img)
+        # cv2.imwrite('./pre/'+ str(i)+'.png', img)
         result = le.inverse_transform(np.argmax(model.predict(img.reshape([-1,32,32,1]))))
-        if label != result:
-            print(label, result)
+        if label == result:
+            c+=1
         i+=1
+print(c, t)

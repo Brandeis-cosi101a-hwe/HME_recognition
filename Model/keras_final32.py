@@ -20,7 +20,7 @@ t_y = le.transform(y)
 
 batch_size = 128
 num_classes = len(le.classes_)
-epochs = 12
+epochs = 20
 
 # input image dimensions
 img_rows, img_cols = 32, 32
@@ -67,8 +67,7 @@ model.fit(x, y,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
-          shuffle=True,
-          validation_split=0.20)
+          shuffle=True)
 
 
 # serialize weights to HDF5

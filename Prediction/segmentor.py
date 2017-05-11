@@ -12,7 +12,7 @@ cropped_imgs = []
 cropped_rects = []
 
 def getName(rect):
-    return str(rect[0]) + '_' + str(rect[0] + rect[2]) + '_' + str(rect[1]) + "_" + str(rect[1] + rect[3]) + '.png'
+    return str(rect[0]) + '_' + str(rect[1]) + '_' + str(rect[0] + rect[2]) + "_" + str(rect[1] + rect[3]) + '.png'
 
 def targetNum(blobs_labels):
     (h, w) = blobs_labels.shape
