@@ -1,6 +1,8 @@
 """
 Separate each contour and save as images
 """
+from glob import glob
+
 import cv2
 import numpy as np
 import skimage
@@ -12,7 +14,7 @@ cropped_imgs = []
 cropped_rects = []
 
 def getName(rect):
-    return str(rect[0]) + '_' + str(rect[1]) + '_' + str(rect[0] + rect[2]) + "_" + str(rect[1] + rect[3]) + '.png'
+    return str(rect[0]) + '_' + str(rect[1]) + '_' + str(rect[0]+rect[2]) + "_" + str(rect[1] + rect[3]) + '.png'
 
 def targetNum(blobs_labels):
     (h, w) = blobs_labels.shape
@@ -89,13 +91,18 @@ def overlap(bars_rect, i, j):
 
 def cropImg(im_temp2, new_rect):
     rect = new_rect
+
     im_temp2 = im_temp2 * 255
     im_temp2 = padding_square(im_temp2)
-    im_temp2 = im_temp2 / 255
+
+    # somehow without these code, resize cannot work
+    cv2.imwrite("temp.png", im_temp2)
+    im_temp2 = cv2.imread('./temp.png', 0)
+
     im_temp2 = cv2.resize(im_temp2, (28, 28), interpolation=cv2.INTER_AREA)
     im_temp2 = padding_32(im_temp2)
-    im_temp2 = im_temp2 * 255
     cv2.imwrite("./output/" + getName(rect), im_temp2)
+
     cropped_imgs.append(im_temp2)
     cropped_rects.append([rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]])
 
